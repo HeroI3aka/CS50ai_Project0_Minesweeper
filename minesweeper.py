@@ -191,7 +191,6 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-
         # mark the cell as a move that has been made
         self.moves_made.add(cell)
         
@@ -217,7 +216,7 @@ class MinesweeperAI():
                 if 0 <= i < self.height and 0 <= j < self.width:
                     cells.add((i,j))
 
-        new_sentence = Sentence(cell, cells)
+        new_sentence = Sentence(cells, count)
         self.knowledge.append(new_sentence)
 
         # mark any additional cells as safe or as mines
@@ -267,7 +266,6 @@ class MinesweeperAI():
                             changed = True
                             self.knowledge.append(new_sentence)
 
-
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -277,12 +275,12 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
+
         safe_moves = self.safes - self.moves_made
         if safe_moves:
             return random.choice(list(safe_moves))
 
         return None
-
 
     def make_random_move(self):
         """
@@ -293,13 +291,14 @@ class MinesweeperAI():
         """
         moves = {}
         MINES = 8
-        num_mines_left = MINES - len(self.mines)
-        num_spaces_left = (self.height * self.width) - (len(self.moves_made) + len(self.mines))
 
-        if num_spaces_left == 0:
+        num_mines_left = MINES - len(self.mines)
+        spaces_left = (self.height * self.width) - (len(self.moves_made) + len(self.mines))
+
+        if spaces_left == 0:
             return None
 
-        basic_prob = num_mines_left / num_spaces_left
+        basic_prob = num_mines_left / spaces_left
 
         for i in range(0, self.height):
             for j in range(0, self.width):
@@ -309,10 +308,11 @@ class MinesweeperAI():
         if moves and not self.knowledge:
             move = random.choice(list(moves.keys()))
             return move
+
         elif moves:
             for sentence in self.knowledge:
                 num_cells = len(sentence.cells)
-                count = int(sentence.count)
+                count = sentence.count
                 mine_prob = count / num_cells
                 for cell in sentence.cells:
                     if moves[cell] < mine_prob:
